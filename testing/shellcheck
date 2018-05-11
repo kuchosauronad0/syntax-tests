@@ -38,10 +38,14 @@ i=0
 skipped=0
 passed=0
 failed=0
+
+# find every (ba|k|)sh script identified by extension
+# warning for find disabled; no other way to keep state
+# shellcheck disable=2044
 for script in $(find . -type f -name \*.sh)
 do
   scripts[$i]=$script 
-  shchkopts=$(awk -F: '/^# shellcheck: / { print $2; exit } /^#?\w*$/ { exit }' $script)
+  shchkopts=$(awk -F: '/^# shellcheck: / { print $2; exit } /^#?\w*$/ { exit }' "$script")
   if [ -z "$shchkopts" ]
   then
     results[$i]="skipped"
