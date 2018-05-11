@@ -1,0 +1,83 @@
+#!/bin/bash 
+# shellcheck disable=1117,2219
+#
+# Finds all sh-family scripts and checks the header for a shellcheck directive.
+# If there is one, executes shellcheck against the script and marks script as
+# passed or failed.  If there is no directive, marks the script as skipped.
+# Directives look like this:
+#
+#   #!/usr/bin/bash
+#   # vi: set softtabstop=2 ts=2 sw=2 expandtab:
+#   ## shellcheck: -e 2162,2048
+#
+# The extra hash is required so that shellcheck does not interpret this line
+# as a one-line directive (and fail the script).  Anything following the colon
+# in the directive is passed to shellcheck before the script path as argument.
+
+# check for shellcheck binary
+if ! which shellcheck >/dev/null 2>&1
+then
+  echo "Could not find shellcheck; exiting"
+  exit
+fi
+
+# colours are only used in interactive terminal
+colours=0
+test -t 0 && colours=1
+
+# colours configuration
+if (( colours ))
+then
+  clr_skipped="\\033[33m"
+  clr_failed="\\033[31m"
+  clr_passed="\\033[32m"
+  clr_normal="\\033[39m"
+fi
+
+i=0
+skipped=0
+passed=0
+failed=0
+for script in $(find . -type f -name \*.sh)
+do
+  scripts[$i]=$script 
+  shchkopts=$(awk -F: '/^# shellcheck: / { print $2; exit } /^#?\w*$/ { exit }' $script)
+  if [ -z "$shchkopts" ]
+  then
+    results[$i]="skipped"
+    let skipped=skipped+1
+  else
+    # shellcheck disable=SC2086
+    if shellcheck $shchkopts $script
+    then  
+      results[$i]="passed"
+      let passed=passed+1
+    else 
+      results[$i]="failed"
+      let failed=failed+1
+    fi
+  fi
+  let i=i+1
+done
+let total=i
+
+for ((i=0; i<total; i++))
+do
+  case ${results[$i]} in
+    "passed")
+      printf "${clr_passed}% 7s %s${clr_normal}\n" "${results[$i]}" "${scripts[$i]}"
+      ;;
+    "skipped")
+      printf "${clr_skipped}% 7s %s${clr_normal}\n" "${results[$i]}" "${scripts[$i]}"
+      ;;
+    "failed")
+      printf "${clr_failed}% 7s %s${clr_normal}\n" "${results[$i]}" "${scripts[$i]}"
+      ;;
+  esac
+done
+
+if (( failed > 0 ))
+then
+  exit 1
+fi
+
