@@ -16,6 +16,47 @@
 # versions prior to 4.6, must be the first line after the shebang.  See 
 # initial versions of this script for compatibility with older shellcheck.
 
+# ----------------------------------------------------------------------------
+#                                                                  functions
+# ----------------------------------------------------------------------------
+
+# Check for shellcheck directive in top of script to determine whether script
+# is a candidate for shellcheck.  Note that any line starting with the text
+# '# shellcheck' will be seen as a shellcheck directive by shellcheck, and
+# so must be a valid directive.  To enable shellchecking on a script, use
+# '# shellcheck disable=' followed by the tests to disable, if any.  The
+# 'disable=' must still be present for the directive to be valid.
+shellcheck_enabled()
+{
+  awk '
+    # default to not finding directive
+    BEGIN {
+      rc=1
+    }
+
+    # find directive (do NOT check for whitespace or whole word; shellcheck
+    # does not so for example "# shellchecked" will be failed out by
+    # shellcheck as a bad directive
+    /^# shellcheck/ {
+      rc=0
+      exit
+    }
+
+    # quit on blank lines or blank comments
+    /^#?\s*$/ {
+      exit
+    }
+
+    # quit with exit code (necessary because END clauses always executes)
+    END {
+      exit rc
+    }' "$1"
+}
+
+# ----------------------------------------------------------------------------
+#                                                             initialization
+# ----------------------------------------------------------------------------
+
 # check for shellcheck binary
 if ! which shellcheck >/dev/null 2>&1
 then
@@ -36,6 +77,10 @@ then
   clr_normal="\\033[39m"
 fi
 
+# ----------------------------------------------------------------------------
+#                                                                       main
+# ----------------------------------------------------------------------------
+
 i=0
 skipped=0
 passed=0
@@ -47,7 +92,7 @@ failed=0
 for script in $(find . -type f -name \*.sh)
 do
   scripts[$i]=$script 
-  if awk 'BEGIN { rc=1 } /^# shellcheck[ $]/ { rc=0; exit } /^#?\s*$/ { exit } END { exit rc }' "$script"
+  if shellcheck_enabled $script
   then
     if shellcheck "$script"
     then  
