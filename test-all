@@ -2,8 +2,10 @@
 
 testdir=$(dirname $0)
 
+highest=0
+
 # find all tests
-for script in $(find $testdir -type f -perm +0111)
+for script in $(find $testdir -maxdepth 1 -type f -perm +0111)
 do
   # skip self
   if [ $script == $0 ]
@@ -11,7 +13,16 @@ do
     continue
   fi
 
-  echo "=========== $script beginnning ======================================"
+  echo "=========== $script beginnning ===================================="
   $script
-  echo "=========== $script finished; rc=$? =================================="
+  rc=$?
+  echo "            $script finished; rc=$rc"
+
+  if [ $rc -gt $highest ]
+  then
+    highest=$rc
+  fi
+
 done
+
+exit $highest  
