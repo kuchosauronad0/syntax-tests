@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash 
 # shellcheck disable=1117,2219
 #
 # Finds all Python scripts and checks the header for a pylint directive.

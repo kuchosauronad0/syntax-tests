@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash 
 # shellcheck disable=1117,2219
 #
 # Finds all sh-family scripts and checks the header for a shellcheck directive.
@@ -53,16 +53,28 @@ shellcheck_enabled()
     }' "$1"
 }
 
+# If there is no shellcheck executable on this system, we only want to flag as
+# a failure if there are candidate scripts (otherwise we'd force projects
+# without shell scripts to have shellcheck installed in their CI environments
+# pointlessly).  This function will be called in the absence of shellcheck for
+# any scripts that should be checked with shellcheck.
+noshellcheck()
+{
+  script=$1
+
+  echo "Script $script should be checked by shellcheck" >/dev/stderr
+  return 128
+}
+
 # ----------------------------------------------------------------------------
 #                                                             initialization
 # ----------------------------------------------------------------------------
 
 # check for shellcheck binary
-if ! which shellcheck >/dev/null 2>&1
-then
-  echo "Could not find shellcheck; exiting"
-  exit
-fi
+SHELLCHECK=$(which shellcheck) || {
+  echo "WARNING: Could not find shellcheck; will fail if candidate scripts exist"
+  SHELLCHECK=noshellcheck
+}
 
 # colours are only used in interactive terminal
 colours=0
@@ -94,7 +106,7 @@ do
   scripts[$i]=$script 
   if shellcheck_enabled $script
   then
-    if shellcheck "$script"
+    if $SHELLCHECK "$script"
     then  
       results[$i]="passed"
       let passed=passed+1

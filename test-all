@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 testdir=$(dirname $0)
 
@@ -25,4 +25,8 @@ do
 
 done
 
-exit $highest  
+if [ $highest -gt 0 ]
+then
+  echo "=========== Errors occurred, highest return value is $highest"
+fi
+exit $highest
