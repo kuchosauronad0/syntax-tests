@@ -1,0 +1,17 @@
+#!/bin/bash
+
+testdir=$(dirname $0)
+
+# find all tests
+for script in $(find $testdir -type f -perm +0111)
+do
+  # skip self
+  if [ $script == $0 ]
+  then
+    continue
+  fi
+
+  echo "=========== $script beginnning ======================================"
+  $script
+  echo "=========== $script finished; rc=$? =================================="
+done
