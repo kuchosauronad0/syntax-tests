@@ -1,0 +1,7 @@
+strict: true
+
+extends: default
+
+rules:
+  empty-lines: disable
+  document-start: disable

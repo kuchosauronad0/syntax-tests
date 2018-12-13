@@ -74,3 +74,7 @@ Shell scripts that are not explicitly identified as candidates are skipped.
 ### Pylint
 
 Pylint runs a Python linter against candidate Python files.  It tends to be fairly demanding and so a serviceable RC file is included in `extras/`.
+
+### Yamllint
+
+Yamllint runs a YAML linter against any files it finds ending in `.yml` or `.yaml` which include a yamllint declaration--that is, a line starting with `# yamllint` occurring in a comment block at the top of the file.

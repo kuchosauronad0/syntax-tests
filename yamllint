@@ -1,14 +1,14 @@
 #!/bin/bash 
 # shellcheck disable=1117,2219
 #
-# Finds all Python scripts and checks the header for a pylint directive.
-# If there is one, executes pylint against the script and marks script as
-# passed or failed.  If there is no directive, marks the script as skipped.
-# Directives look like this:
+# Finds all YAML configuration files and checks the header for a pylint 
+# directive.  If there is one, executes yamllint against the script and marks
+# script as # passed or failed.  If there is no directive, marks the script as
+# skipped.  Directives look like this:
 #
 #   #!/usr/bin/bash
 #   # vi: set softtabstop=2 ts=2 sw=2 expandtab:
-#   # pylint
+#   # yamllint
 #
 
 # ----------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 
 # Check for pylint directive in top of script to determine whether script
 # is a candidate.
-pylint_enabled()
+yamllint_enabled()
 {
   awk '
     # default to not finding directive
@@ -28,7 +28,7 @@ pylint_enabled()
     # find directive (do NOT check for whitespace or whole word; this check
     # does not so for example "# pylint" will be failed out by
     # pylint as a bad directive
-    /^# pylint/ {
+    /^# yamllint/ {
       rc=0
       exit
     }
@@ -44,15 +44,34 @@ pylint_enabled()
     }' "$1"
 }
 
+# If there is no yamllint executable on this system, we only want to flag as
+# a failure if there are candidate scripts (otherwise we'd force projects
+# without shell scripts to have yamllint installed in their CI environments
+# pointlessly).  This function will be called in the absence of yamllint for
+# any scripts that should be checked with yamllint.
+noyamllint()
+{
+  script=$1
+
+  echo "Script $script should be checked by yamllint" >/dev/stderr
+  return 128
+}
+
 # ----------------------------------------------------------------------------
 #                                                             initialization
 # ----------------------------------------------------------------------------
 
-# check for pylint binary
-if ! which pylint >/dev/null 2>&1
+# check for yamllint binary
+if YAMLLINT=$(which yamllint)
 then
-  echo "Could not find pylint; exiting"
-  exit
+  YAMLLINT="$YAMLLINT -s"
+  if [ -n "$YAMLLINTRC" ]
+  then
+    YAMLLINT="$YAMLLINT -c $YAMLLINTRC"
+  fi
+else
+  echo "WARNING: Could not find yamllint; will fail if candidate scripts exist"
+  YAMLLINT=noyamllint
 fi
 
 # colours are only used in interactive terminal
@@ -80,12 +99,12 @@ failed=0
 # find every Python script identified by extension
 # warning for find disabled; no other way to keep state
 # shellcheck disable=2044
-for script in $(find . -type f -name \*.py -not -path ./venv/\*)
+for script in $(find . -type f -name \*.yaml -o -name \*.yml -not -path ./venv/\*)
 do
   scripts[$i]=$script 
-  if pylint_enabled $script
+  if yamllint_enabled $script
   then
-    if pylint -rn -sn "$script"
+    if $YAMLLINT "$script"
     then  
       results[$i]="passed"
       let passed=passed+1
