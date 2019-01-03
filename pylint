@@ -10,6 +10,12 @@
 #   # vi: set softtabstop=2 ts=2 sw=2 expandtab:
 #   # pylint
 #
+# In order to pass pylint command-line directives, the following may be used:
+#
+#   # pylintopts: --indent-string='    '
+#
+# These may also be specified in an RC file pointed to by the environment
+# variable $PYLINTRC.
 
 # ----------------------------------------------------------------------------
 #                                                                  functions
@@ -28,9 +34,13 @@ pylint_enabled()
     # find directive (do NOT check for whitespace or whole word; this check
     # does not so for example "# pylint" will be failed out by
     # pylint as a bad directive
-    /^# pylint/ {
+    /^# ?pylint[:$]/ {
       rc=0
-      exit
+    }
+
+    match($0, /^# ?pylintopts: */) {
+      rc=0;
+      print substr($0, RSTART+RLENGTH);
     }
 
     # quit on blank lines or blank comments
@@ -82,10 +92,10 @@ failed=0
 # shellcheck disable=2044
 for script in $(find . -type f -name \*.py -not -path ./venv/\*)
 do
-  scripts[$i]=$script 
-  if pylint_enabled $script
+  scripts[$i]=$script
+  if pylint_opts=$(pylint_enabled $script)
   then
-    if pylint -rn -sn "$script"
+    if pylint "$pylint_opts" -rn -sn "$script"
     then  
       results[$i]="passed"
       let passed=passed+1
