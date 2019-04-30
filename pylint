@@ -87,10 +87,10 @@ skipped=0
 passed=0
 failed=0
 
-# find every Python script identified by extension
+# find every Python script identified by extension or first line of file
 # warning for find disabled; no other way to keep state
 # shellcheck disable=2044
-for script in $(find . -type f -name \*.py -not -path ./venv/\*)
+for script in $(find . -type f -a \( -name \*.py -o -exec awk 'BEGIN { result = 1 } NR==1 && /python/ { result=0 } END { exit result }' {} \; -print \) -not -path ./venv/\*)
 do
   scripts[$i]=$script
   if pylint_opts=$(pylint_enabled $script)
