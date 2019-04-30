@@ -103,34 +103,31 @@ do
     fi
     if (( $? ))
     then
-      results[$i]="failed"
+      result="failed"
       let failed=failed+1
     else
-      results[$i]="passed"
+      result="passed"
       let passed=passed+1
     fi
   else
-    results[$i]="skipped"
+    result="skipped"
     let skipped=skipped+1
   fi
+  case "$result" in
+    "passed")
+      printf "${clr_passed}% 7s %s${clr_normal}\n" "${result}" "${script}"
+      ;;
+    "skipped")
+      printf "${clr_skipped}% 7s %s${clr_normal}\n" "${result}" "${script}"
+      ;;
+    "failed")
+      printf "${clr_failed}% 7s %s${clr_normal}\n" "${result}" "${script}"
+      ;;
+  esac
+  results[$i]="$result"
   let i=i+1
 done
 let total=i
-
-for ((i=0; i<total; i++))
-do
-  case ${results[$i]} in
-    "passed")
-      printf "${clr_passed}% 7s %s${clr_normal}\n" "${results[$i]}" "${scripts[$i]}"
-      ;;
-    "skipped")
-      printf "${clr_skipped}% 7s %s${clr_normal}\n" "${results[$i]}" "${scripts[$i]}"
-      ;;
-    "failed")
-      printf "${clr_failed}% 7s %s${clr_normal}\n" "${results[$i]}" "${scripts[$i]}"
-      ;;
-  esac
-done
 
 if (( failed > 0 ))
 then
