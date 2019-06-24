@@ -15,6 +15,26 @@
 #                                                                  functions
 # ----------------------------------------------------------------------------
 
+Usage()
+{
+  script=$(basename $0)
+  cat <<EOF
+Usage: $script -h
+       $script [-a]
+Where:
+       -h invokes this usage text
+       -a tests all YAML files
+
+By default, this script will find all YAML files in the current directory
+and subdirectories, and check for a yamllint directive.  If one is found,
+the file will be checked with yamllint.
+
+If "-a" is specified, all files with a .yml or .yaml extension will be 
+linted.
+EOF
+  exit
+}
+
 # Check for pylint directive in top of script to determine whether script
 # is a candidate.
 yamllint_enabled()
@@ -61,6 +81,23 @@ noyamllint()
 #                                                             initialization
 # ----------------------------------------------------------------------------
 
+# defaults
+all=0
+
+# parse arguments
+while [ -n "$1" ]
+do
+  case "$1" in
+    "-a")
+      all=1
+      ;;
+    *)
+      Usage
+      ;;
+  esac
+  shift
+done
+
 # check for yamllint binary
 if YAMLLINT=$(which yamllint)
 then
@@ -102,7 +139,7 @@ failed=0
 for script in $(find . -type f -name \*.yaml -o -name \*.yml -not -path ./venv/\*)
 do
   scripts[$i]=$script 
-  if yamllint_enabled $script
+  if (( $all )) || yamllint_enabled $script
   then
     if $YAMLLINT "$script"
     then  
