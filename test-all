@@ -13,7 +13,7 @@ do
     continue
   fi
 
-  echo "=========== $script beginnning ===================================="
+  echo "=========== $script beginning ===================================="
   $script
   rc=$?
   echo "            $script finished; rc=$rc"
