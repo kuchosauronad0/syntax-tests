@@ -101,7 +101,8 @@ failed=0
 # find every (ba|k|)sh script identified by extension
 # warning for find disabled; no other way to keep state
 # shellcheck disable=2044
-for script in $(find . -type f -name \*.sh)
+#for script in $(find . -type f -name \*.sh)
+for script in $(git ls-files \*.sh)
 do
   scripts[$i]=$script 
   if shellcheck_enabled $script
