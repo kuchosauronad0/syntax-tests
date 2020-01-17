@@ -4,5 +4,6 @@ todos=$(git grep -c TODO: | awk -F: 'BEGIN { count = 0 } { count += $2 } END { p
 if [ $todos -gt 0 ]
 then
   echo "There are $todos TODO notes in repository"
-  false
 fi
+
+exit $todos
