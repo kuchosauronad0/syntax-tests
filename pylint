@@ -107,7 +107,7 @@ fi
 # warning for find disabled; no other way to keep state
 # shellcheck disable=2044
 #for script in $(find . -type f -not -path '*/venv/*' -not -path "./$LINTCACHE/*" \( -name \*.py -or -exec awk 'BEGIN { result = 1 } NR==1 && /python/ { result=0 } END { exit result }' {} \; \) -print)
-for script in $(file $(git ls-files) | awk -F: '/Python/ { print $1 }')
+for script in $(git ls-files | while read file; do if [ -z "${file#*.py}" ]; then echo $file; else file $file | awk -F: '/Python/ { print $1 }'; fi; done )
 do
   scripts[$i]=$script
   if pylint_opts=$(pylint_enabled $script)
