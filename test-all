@@ -2,10 +2,17 @@
 
 testdir=$(dirname $0)
 
+if [ -z "$PYLINTRC" ]
+then
+  export PYLINTRC=$testdir/extras/pylintrc
+fi
+
 highest=0
 
 # find all tests
-for script in $(find $testdir -maxdepth 1 -type f -perm +0111)
+# use different invocations--first is BSD, second is GNU
+alltests=$(find $testdir -maxdepth 1 -type f -perm +0111) || alltests=$(find $testdir -maxdepth 1 -type f -perm /0111)
+for script in $alltests
 do
   # skip self and 'todos' 
   if [ $script == $0 -o $script == "$testdir/todos" ]
