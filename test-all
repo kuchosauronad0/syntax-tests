@@ -9,9 +9,16 @@ fi
 
 highest=0
 
+# determine executability predicate
+if find --version >/dev/null 2>&1
+then
+  IS_EXECUTABLE="-executable"
+else
+  IS_EXECUTABLE="-perm +0111"
+fi
+
 # find all tests
-# use different invocations--first is BSD, second is GNU
-alltests=$(find $testdir -maxdepth 1 -type f -perm +0111 2>/dev/null) || alltests=$(find $testdir -maxdepth 1 -type f -perm /0111 2>/dev/null)
+alltests=$(find $testdir -maxdepth 1 -type f $IS_EXECUTABLE 2>/dev/null)
 
 # if no tests found, that's probably an issue
 if [ -z "$alltests" ]
