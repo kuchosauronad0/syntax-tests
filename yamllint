@@ -99,7 +99,7 @@ do
 done
 
 # check for yamllint binary
-if ! yamllint --version 2>/dev/null
+if yamllint --version 2>/dev/null
 then
   YAMLLINT="$YAMLLINT -s"
   if [ -n "$YAMLLINTRC" ]
