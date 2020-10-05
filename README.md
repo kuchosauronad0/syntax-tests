@@ -78,3 +78,10 @@ Pylint runs a Python linter against candidate Python files.  It tends to be fair
 ### Yamllint
 
 Yamllint runs a YAML linter against any files it finds ending in `.yml` or `.yaml` which include a yamllint declaration--that is, a line starting with `# yamllint` occurring in a comment block at the top of the file.
+
+## Caveats
+
+The linting cache in `.lintcache` should be cleared whenever a linter is
+upgraded.  Discrepencies in results between various environments are typically
+due to differing linter versions, one in the CI and an older version's results
+cached--even though the active version of the linter are the same in both.
