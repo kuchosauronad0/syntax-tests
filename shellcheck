@@ -71,10 +71,11 @@ noshellcheck()
 # ----------------------------------------------------------------------------
 
 # check for shellcheck binary
-SHELLCHECK=$(which shellcheck) || {
+if ! shellcheck --version 2>/dev/null
+then
   echo "WARNING: Could not find shellcheck; will fail if candidate scripts exist"
   SHELLCHECK=noshellcheck
-}
+fi
 
 # colours are only used in interactive terminal
 colours=0

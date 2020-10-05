@@ -64,8 +64,8 @@ pylint_enabled()
 #                                                             initialization
 # ----------------------------------------------------------------------------
 
-# check for pylint binary
-if ! which pylint >/dev/null 2>&1
+# check for pylint binary and print version information
+if ! pylint --version 2>&1
 then
   echo "Could not find pylint; exiting"
   exit
