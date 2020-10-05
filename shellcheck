@@ -70,11 +70,13 @@ noshellcheck()
 #                                                             initialization
 # ----------------------------------------------------------------------------
 
-# check for shellcheck binary
-if ! shellcheck --version 2>/dev/null
+# check for shellcheck binary and print out version
+if ! versioninfo=$(shellcheck --version 2>/dev/null)
 then
   echo "WARNING: Could not find shellcheck; will fail if candidate scripts exist"
   SHELLCHECK=noshellcheck
+else
+  echo "$versioninfo" | awk -F': ' '$1 == "version" { printf("shellcheck %s\n", $2) }'
 fi
 
 # colours are only used in interactive terminal

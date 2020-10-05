@@ -65,7 +65,7 @@ pylint_enabled()
 # ----------------------------------------------------------------------------
 
 # check for pylint binary and print version information
-if ! pylint --version 2>&1
+if ! pylint --version 2>&1 | grep -E '^pylint (\d+\.)*\d+'
 then
   echo "Could not find pylint; exiting"
   exit
