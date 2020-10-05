@@ -101,7 +101,7 @@ done
 # check for yamllint binary
 if yamllint --version 2>/dev/null
 then
-  YAMLLINT="$YAMLLINT -s"
+  YAMLLINT="yamllint -s"
   if [ -n "$YAMLLINTRC" ]
   then
     YAMLLINT="$YAMLLINT -c $YAMLLINTRC"
