@@ -133,11 +133,8 @@ skipped=0
 passed=0
 failed=0
 
-# find every Python script identified by extension
-# warning for find disabled; no other way to keep state
-# shellcheck disable=2044
-#for script in $(find . -type f -name \*.yaml -o -name \*.yml -not -path '*/venv/*')
-for script in $(git ls-files \*.yml \*.yaml)
+# find every YAML file identified by extension
+for script in $(while read file; do if [ -z "${file#*.y*ml}" ]; then echo $file; fi; done )
 do
   scripts[$i]=$script 
   if (( $all )) || yamllint_enabled $script
