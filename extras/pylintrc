@@ -158,11 +158,11 @@ max-module-lines=1000
 # String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
 # tab).
 #DCL.20181207 indent-string='    '
-indent-string='  '
+indent-string='    '
 
 # Number of spaces of indent required inside a hanging or continued line.
 #DCL.20181207 indent-after-paren=4
-indent-after-paren=2
+indent-after-paren=4
 
 # Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
 expected-line-ending-format=
